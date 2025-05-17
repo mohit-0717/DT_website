@@ -2,31 +2,51 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Attendance QR Scanner</title>
+  <title>Organizer QR Scanner</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       text-align: center;
       padding: 40px;
     }
+    #loginBox, #scannerBox {
+      display: none;
+    }
+    input {
+      font-size: 16px;
+      padding: 10px;
+      margin: 10px;
+      width: 250px;
+    }
     button {
-      font-size: 18px;
-      padding: 15px 30px;
-      cursor: pointer;
-      border-radius: 8px;
+      font-size: 16px;
+      padding: 10px 20px;
       border: none;
+      border-radius: 5px;
       background-color: #4caf50;
       color: white;
-      transition: background-color 0.3s ease;
+      cursor: pointer;
     }
     button:hover {
-      background-color: #45a049;
+      background-color: #388e3c;
+    }
+    #statusMsg {
+      margin-top: 10px;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
-  <h2>Attendance QR Scanner</h2>
-  <p>Click the button below to open the QR code scanner in a new tab:</p>
-  <button onclick="window.open('https://webqr.com', '_blank')">Open QR Scanner</button>
-</body>
-</html>
+
+  <h2>Organizer Login</h2>
+
+  <div id="loginBox">
+    <input type="text" id="userId" placeholder="Enter ID"><br>
+    <input type="password" id="userPass" placeholder="Enter Password"><br>
+    <button onclick="checkLogin()">Login</button>
+    <p id="loginStatus"></p>
+  </div>
+
+  <div id="scannerBox">
+    <h2>Attendance QR Scanner</h2>
+    <button onclick="window.open('https://scanapp.org/webscanner', '_blank')">Open QR Scanner</button>
