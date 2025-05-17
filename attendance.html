@@ -1,104 +1,122 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Organizer QR Scanner</title>
+  <meta charset="UTF-8">
+  <title>Attendance QR Scanner</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       font-family: Arial, sans-serif;
       text-align: center;
-      padding: 40px;
+      padding: 20px;
     }
-    #loginBox, #scannerBox {
+    #reader {
+      width: 100%;
+      max-width: 400px;
+      margin: 20px auto;
+      border: 2px solid #444;
+      border-radius: 10px;
+      display: none;
+    }
+    #result {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+      color: green;
+    }
+    #login-section {
+      margin-top: 50px;
+    }
+    #scanner-section {
       display: none;
     }
     input {
-      font-size: 16px;
-      padding: 10px;
-      margin: 10px;
-      width: 250px;
+      padding: 8px;
+      margin: 5px;
     }
     button {
-      font-size: 16px;
-      padding: 10px 20px;
-      border: none;
-      border-radius: 5px;
-      background-color: #4caf50;
-      color: white;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #388e3c;
-    }
-    #statusMsg {
+      padding: 8px 16px;
       margin-top: 10px;
-      font-weight: bold;
     }
   </style>
 </head>
 <body>
 
-  <h2>Organizer Login</h2>
+  <h2>Attendance QR Scanner</h2>
 
-  <div id="loginBox">
-    <input type="text" id="userId" placeholder="Enter ID"><br>
-    <input type="password" id="userPass" placeholder="Enter Password"><br>
-    <button onclick="checkLogin()">Login</button>
-    <p id="loginStatus"></p>
+  <!-- Organizer Login -->
+  <div id="login-section">
+    <input type="text" id="loginId" placeholder="Enter Organizer ID"><br>
+    <input type="password" id="loginPass" placeholder="Enter Password"><br>
+    <button onclick="login()">Login</button>
+    <div id="loginMsg" style="color: red; margin-top: 10px;"></div>
   </div>
 
-  <div id="scannerBox">
-    <h2>Attendance QR Scanner</h2>
-    <button onclick="window.open('https://scanapp.org/webscanner', '_blank')">Open QR Scanner</button>
-
-    <h3>Paste Scanned QR Code Below:</h3>
-    <input type="text" id="qrInput" placeholder="Paste scanned QR code here"><br>
-    <button onclick="submitQR()">Submit Attendance</button>
-    <p id="statusMsg"></p>
+  <!-- QR Scanner -->
+  <div id="scanner-section">
+    <div id="reader"></div>
+    <div id="result">Waiting for scan...</div>
   </div>
 
-<script>
-  const resultElement = document.getElementById('result');
-  const html5QrCode = new Html5Qrcode("reader");
+  <script src="https://unpkg.com/html5-qrcode@2.3.7/minified/html5-qrcode.min.js"></script>
+  <script>
+    function login() {
+      const id = document.getElementById("loginId").value.trim();
+      const pass = document.getElementById("loginPass").value.trim();
+      const msg = document.getElementById("loginMsg");
 
-  function onScanSuccess(decodedText, decodedResult) {
-    try {
-      const data = JSON.parse(decodedText);
-      if (data.name && data.event) {
-        resultElement.innerHTML = `
-          ✅ Valid QR<br>
-          👤 Name: ${data.name}<br>
-          🏫 College: ${data.college}<br>
-          📅 Event: ${data.event}
-        `;
+      if (id === "Organizer" && pass === "123456") {
+        document.getElementById("login-section").style.display = "none";
+        document.getElementById("scanner-section").style.display = "block";
+        startScanner();
       } else {
-        resultElement.innerText = "❌ Invalid QR format";
+        msg.innerText = "❌ Invalid ID or Password!";
       }
-    } catch (err) {
-      resultElement.innerText = "❌ Error reading QR data";
     }
 
-    html5QrCode.stop().catch(err => {
-      console.error("Failed to stop camera: ", err);
-    });
-  }
+    function startScanner() {
+      const resultElement = document.getElementById('result');
+      const html5QrCode = new Html5Qrcode("reader");
+      document.getElementById("reader").style.display = "block";
 
-  Html5Qrcode.getCameras().then(cameras => {
-    if (cameras.length > 0) {
-      html5QrCode.start(
-        cameras[0].id,
-        { fps: 10, qrbox: 250 },
-        onScanSuccess
-      ).catch(err => {
-        resultElement.innerText = "❌ Camera start failed: " + err;
+      function onScanSuccess(decodedText) {
+        try {
+          const data = JSON.parse(decodedText);
+          if (data.name && data.event) {
+            resultElement.innerHTML = `
+              ✅ Valid QR<br>
+              👤 Name: ${data.name}<br>
+              🏫 College: ${data.college}<br>
+              📅 Event: ${data.event}
+            `;
+          } else {
+            resultElement.innerText = "❌ Invalid QR format";
+          }
+        } catch (err) {
+          resultElement.innerText = "❌ Error reading QR data";
+        }
+
+        html5QrCode.stop().catch(err => {
+          console.error("Stop error:", err);
+        });
+      }
+
+      Html5Qrcode.getCameras().then(cameras => {
+        if (cameras.length > 0) {
+          html5QrCode.start(
+            cameras[0].id,
+            { fps: 10, qrbox: 250 },
+            onScanSuccess
+          ).catch(err => {
+            resultElement.innerText = "❌ Camera start failed: " + err;
+          });
+        } else {
+          resultElement.innerText = "❌ No cameras found";
+        }
+      }).catch(err => {
+        resultElement.innerText = "⚠️ Camera access error: " + err;
       });
-    } else {
-      resultElement.innerText = "❌ No cameras found";
     }
-  }).catch(err => {
-    resultElement.innerText = "⚠️ Camera access error: " + err;
-  });
-</script>
-
+  </script>
 </body>
 </html>
