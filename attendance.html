@@ -2,40 +2,28 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Organizer QR Scanner</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Attendance QR Scanner</title>
   <style>
-    body {
-      font-family: sans-serif;
-      text-align: center;
-      padding: 20px;
-    }
-    #reader {
-      width: 300px;
-      margin: auto;
-      display: none;
-    }
-    #result {
-      margin-top: 20px;
-      color: green;
-      font-weight: bold;
-    }
-    #scanner-section {
-      display: none;
-    }
+    body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+    #reader { width: 320px; margin: 20px auto; }
+    #result { margin-top: 20px; font-size: 18px; font-weight: bold; color: green; }
+    #login-section { margin-bottom: 20px; }
+    #scanner-section { display: none; }
   </style>
 </head>
 <body>
+
   <h2>Organizer Login</h2>
   <div id="login-section">
-    <input id="loginId" type="text" placeholder="ID: Organizer"><br>
-    <input id="loginPass" type="password" placeholder="Password"><br>
+    <input id="loginId" type="text" placeholder="ID: Organizer" /><br><br>
+    <input id="loginPass" type="password" placeholder="Password" /><br><br>
     <button onclick="checkLogin()">Login</button>
-    <div id="loginMsg" style="color:red;"></div>
+    <div id="loginMsg" style="color:red; margin-top:10px;"></div>
   </div>
 
   <div id="scanner-section">
-    <h3>QR Scanner</h3>
+    <h3>Scan Participant QR</h3>
     <div id="reader"></div>
     <div id="result">Waiting for scan...</div>
   </div>
@@ -45,47 +33,52 @@
     function checkLogin() {
       const id = document.getElementById("loginId").value.trim();
       const pass = document.getElementById("loginPass").value.trim();
-      if (id === "Organizer" && pass === "123456") {
+      const loginMsg = document.getElementById("loginMsg");
+
+      if(id === "Organizer" && pass === "123456") {
+        loginMsg.innerText = "";
         document.getElementById("login-section").style.display = "none";
         document.getElementById("scanner-section").style.display = "block";
         startScanner();
       } else {
-        document.getElementById("loginMsg").innerText = "Invalid credentials!";
+        loginMsg.innerText = "Invalid ID or Password!";
       }
     }
 
     function startScanner() {
-      const qrCode = new Html5Qrcode("reader");
-      document.getElementById("reader").style.display = "block";
+      const html5QrCode = new Html5Qrcode("reader");
       const resultDiv = document.getElementById("result");
 
       Html5Qrcode.getCameras().then(cameras => {
         if (cameras && cameras.length) {
-          qrCode.start(
+          html5QrCode.start(
             cameras[0].id,
             { fps: 10, qrbox: 250 },
             (decodedText) => {
               try {
                 const data = JSON.parse(decodedText);
-                resultDiv.innerHTML = `
-                  ✅ Valid QR<br>
-                  👤 ${data.name}<br>
-                  🏫 ${data.college}<br>
-                  📅 ${data.event}
-                `;
-              } catch {
-                resultDiv.innerText = "Scanned, but invalid data";
+                // Show your required message here:
+                resultDiv.innerText = `QR is valid for the event — "${data.event}" of the participant — "${data.name}"`;
+                // Stop scanning after successful scan
+                html5QrCode.stop();
+              } catch(e) {
+                resultDiv.innerText = "Invalid QR data format.";
               }
-              qrCode.stop();
+            },
+            (errorMessage) => {
+              // Optionally handle scan errors here
             }
-          );
+          ).catch(err => {
+            resultDiv.innerText = "Unable to start scanning: " + err;
+          });
         } else {
-          resultDiv.innerText = "No cameras found";
+          resultDiv.innerText = "No cameras found.";
         }
       }).catch(err => {
-        resultDiv.innerText = "Camera error: " + err;
+        resultDiv.innerText = "Error getting cameras: " + err;
       });
     }
   </script>
+
 </body>
 </html>
