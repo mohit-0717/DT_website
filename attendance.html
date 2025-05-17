@@ -2,67 +2,88 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Attendance Validator</title>
+  <title>Organizer QR Scanner</title>
   <style>
-    body { font-family: Arial, sans-serif; max-width: 600px; margin: 20px auto; text-align: center; }
-    #scanner-section, #result-section { display: none; margin-top: 20px; }
-    textarea { width: 100%; height: 100px; }
-    #result { font-weight: bold; margin-top: 20px; color: green; }
-    #loginMsg { color: red; }
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 40px;
+    }
+    #loginBox, #scannerBox {
+      display: none;
+    }
+    input {
+      font-size: 16px;
+      padding: 10px;
+      margin: 10px;
+      width: 250px;
+    }
+    button {
+      font-size: 16px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      background-color: #4caf50;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #388e3c;
+    }
+    #statusMsg {
+      margin-top: 10px;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
 
   <h2>Organizer Login</h2>
-  <div id="login-section">
-    <input id="loginId" type="text" placeholder="ID: Organizer" /><br><br>
-    <input id="loginPass" type="password" placeholder="Password" /><br><br>
+
+  <div id="loginBox">
+    <input type="text" id="userId" placeholder="Enter ID"><br>
+    <input type="password" id="userPass" placeholder="Enter Password"><br>
     <button onclick="checkLogin()">Login</button>
-    <div id="loginMsg"></div>
+    <p id="loginStatus"></p>
   </div>
 
-  <div id="scanner-section">
-    <h3>Paste Scanned QR JSON Here</h3>
-    <textarea id="qrInput" placeholder='Paste scanned QR JSON text here'></textarea><br>
-    <button onclick="validateQR()">Validate QR</button>
+  <div id="scannerBox">
+    <h2>Attendance QR Scanner</h2>
+    <button onclick="window.open('https://scanapp.org/webscanner', '_blank')">Open QR Scanner</button>
+
+    <h3>Paste Scanned QR Code Below:</h3>
+    <input type="text" id="qrInput" placeholder="Paste scanned QR code here"><br>
+    <button onclick="submitQR()">Submit Attendance</button>
+    <p id="statusMsg"></p>
   </div>
 
-  <div id="result-section">
-    <h3>Validation Result</h3>
-    <div id="result"></div>
-  </div>
+  <script>
+    // ✅ Wait for full page to load before showing login
+    window.onload = function () {
+      document.getElementById('loginBox').style.display = 'block';
+    };
 
-<script>
-  function checkLogin() {
-    const id = document.getElementById("loginId").value.trim();
-    const pass = document.getElementById("loginPass").value.trim();
-    const loginMsg = document.getElementById("loginMsg");
+    function checkLogin() {
+      const id = document.getElementById('userId').value.trim();
+      const pass = document.getElementById('userPass').value.trim();
 
-    if(id === "Organizer" && pass === "123456") {
-      loginMsg.innerText = "";
-      document.getElementById("login-section").style.display = "none";
-      document.getElementById("scanner-section").style.display = "block";
-    } else {
-      loginMsg.innerText = "Invalid ID or Password!";
-    }
-  }
-
-  function validateQR() {
-    const qrText = document.getElementById("qrInput").value.trim();
-    const resultDiv = document.getElementById("result");
-    const resultSection = document.getElementById("result-section");
-
-    try {
-      const data = JSON.parse(qrText);
-      resultDiv.innerText = `QR is valid for the event — "${data.event}" of the participant — "${data.name}"`;
-    } catch(e) {
-      resultDiv.innerText = "Invalid QR JSON data!";
+      if (id === "Organizer" && pass === "123456") {
+        document.getElementById('loginBox').style.display = 'none';
+        document.getElementById('scannerBox').style.display = 'block';
+      } else {
+        document.getElementById('loginStatus').innerText = "❌ Invalid ID or password.";
+      }
     }
 
-    resultSection.style.display = "block";
-  }
-</script>
+    function submitQR() {
+      const code = document.getElementById('qrInput').value.trim();
+      if (code === "") {
+        document.getElementById('statusMsg').innerText = "❌ Please paste a QR code.";
+      } else {
+        document.getElementById('statusMsg').innerText = "✅ Attendance marked for: " + code;
+      }
+    }
+  </script>
 
 </body>
 </html>
