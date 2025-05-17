@@ -2,57 +2,87 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Attendance QR Scanner</title>
+  <title>Organizer QR Scanner</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       text-align: center;
       padding: 40px;
     }
-    button {
-      font-size: 18px;
-      padding: 15px 30px;
-      cursor: pointer;
-      border-radius: 8px;
-      border: none;
-      background-color: #4caf50;
-      color: white;
-      margin-bottom: 20px;
-    }
-    button:hover {
-      background-color: #45a049;
+    #loginBox, #scannerBox {
+      display: none;
     }
     input {
       font-size: 16px;
       padding: 10px;
-      width: 300px;
-      margin-bottom: 10px;
+      margin: 10px;
+      width: 250px;
+    }
+    button {
+      font-size: 16px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      background-color: #4caf50;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #388e3c;
+    }
+    #statusMsg {
+      margin-top: 10px;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
-  <h2>Attendance QR Scanner</h2>
-  <p>Click the button below to scan QR code using an external tool:</p>
-  <button onclick="window.open('https://scanapp.org/webscanner', '_blank')">Open QR Scanner</button>
 
-  <div>
-    <h3>Paste Scanned QR Code Here:</h3>
-    <input type="text" id="qrInput" placeholder="Paste scanned code here" />
-    <br />
+  <h2>Organizer Login</h2>
+
+  <div id="loginBox">
+    <input type="text" id="userId" placeholder="Enter ID"><br>
+    <input type="password" id="userPass" placeholder="Enter Password"><br>
+    <button onclick="checkLogin()">Login</button>
+    <p id="loginStatus"></p>
+  </div>
+
+  <div id="scannerBox">
+    <h2>Attendance QR Scanner</h2>
+    <button onclick="window.open('https://scanapp.org/webscanner', '_blank')">Open QR Scanner</button>
+
+    <h3>Paste Scanned QR Code Below:</h3>
+    <input type="text" id="qrInput" placeholder="Paste scanned QR code here"><br>
     <button onclick="submitQR()">Submit Attendance</button>
     <p id="statusMsg"></p>
   </div>
 
   <script>
+    // Show login on page load
+    document.getElementById('loginBox').style.display = 'block';
+
+    function checkLogin() {
+      const id = document.getElementById('userId').value.trim();
+      const pass = document.getElementById('userPass').value.trim();
+
+      if (id === "Organizer" && pass === "123456") {
+        document.getElementById('loginBox').style.display = 'none';
+        document.getElementById('scannerBox').style.display = 'block';
+      } else {
+        document.getElementById('loginStatus').innerText = "❌ Invalid ID or password.";
+      }
+    }
+
     function submitQR() {
-      const code = document.getElementById('qrInput').value;
-      if (code.trim() === "") {
-        document.getElementById('statusMsg').innerText = "❌ Please paste a valid QR code!";
+      const code = document.getElementById('qrInput').value.trim();
+      if (code === "") {
+        document.getElementById('statusMsg').innerText = "❌ Please paste a QR code.";
       } else {
         document.getElementById('statusMsg').innerText = "✅ Attendance marked for: " + code;
-        // You can add logic to send this data to your database here.
+        // Add backend logic here if needed
       }
     }
   </script>
+
 </body>
 </html>
