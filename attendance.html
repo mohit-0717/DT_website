@@ -50,3 +50,40 @@
   <div id="scannerBox">
     <h2>Attendance QR Scanner</h2>
     <button onclick="window.open('https://scanapp.org/webscanner', '_blank')">Open QR Scanner</button>
+
+    <h3>Paste Scanned QR Code Below:</h3>
+    <input type="text" id="qrInput" placeholder="Paste scanned QR code here"><br>
+    <button onclick="submitQR()">Submit Attendance</button>
+    <p id="statusMsg"></p>
+  </div>
+
+  <script>
+    // ✅ Wait for full page to load before showing login
+    window.onload = function () {
+      document.getElementById('loginBox').style.display = 'block';
+    };
+
+    function checkLogin() {
+      const id = document.getElementById('userId').value.trim();
+      const pass = document.getElementById('userPass').value.trim();
+
+      if (id === "Organizer" && pass === "123456") {
+        document.getElementById('loginBox').style.display = 'none';
+        document.getElementById('scannerBox').style.display = 'block';
+      } else {
+        document.getElementById('loginStatus').innerText = "❌ Invalid ID or password.";
+      }
+    }
+
+    function submitQR() {
+      const code = document.getElementById('qrInput').value.trim();
+      if (code === "") {
+        document.getElementById('statusMsg').innerText = "❌ Please paste a QR code.";
+      } else {
+        document.getElementById('statusMsg').innerText = "✅ Attendance marked for: " + code;
+      }
+    }
+  </script>
+
+</body>
+</html>
