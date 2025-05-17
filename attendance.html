@@ -1,28 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8">
   <title>Attendance QR Scanner</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
     #scanner {
       width: 100%;
       max-width: 400px;
       margin: 20px auto;
-      border: 2px solid #444;
-      border-radius: 8px;
+      border: 2px solid #555;
+      border-radius: 10px;
     }
     #result {
       margin-top: 20px;
-      font-size: 1.2rem;
-      color: green;
-      text-align: center;
       font-weight: bold;
-    }
-    body {
-      font-family: sans-serif;
-      text-align: center;
-      padding: 20px;
+      color: green;
     }
   </style>
 </head>
@@ -32,38 +30,33 @@
   <div id="scanner"></div>
   <div id="result">Waiting for scan...</div>
 
-  <!-- QR code scanner script -->
   <script src="https://unpkg.com/html5-qrcode@2.3.7/minified/html5-qrcode.min.js"></script>
   <script>
-    const resultDiv = document.getElementById("result");
+    const result = document.getElementById('result');
     const html5QrCode = new Html5Qrcode("scanner");
 
     function onScanSuccess(decodedText, decodedResult) {
-      // Stop scanner after one scan
-      html5QrCode.stop().then(() => {
-        console.log("QR Code scanner stopped.");
-      });
-      resultDiv.innerText = `Scanned ID: ${decodedText}`;
-    }
-
-    function onScanFailure(error) {
-      // Optional: Ignore scan failures
+      html5QrCode.stop();
+      result.innerText = "Scanned: " + decodedText;
     }
 
     Html5Qrcode.getCameras().then(cameras => {
       if (cameras && cameras.length) {
         html5QrCode.start(
-          cameras[0].id, // use first available camera
-          { fps: 10, qrbox: 250 },
-          onScanSuccess,
-          onScanFailure
+          cameras[0].id,
+          {
+            fps: 10,
+            qrbox: 250
+          },
+          onScanSuccess
         );
       } else {
-        resultDiv.innerText = "No cameras found.";
+        result.innerText = "No cameras found";
       }
     }).catch(err => {
-      resultDiv.innerText = "Error accessing camera: " + err;
+      result.innerText = "Camera error: " + err;
     });
   </script>
+
 </body>
 </html>
