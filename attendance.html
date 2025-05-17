@@ -1,62 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Attendance QR Scanner</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       font-family: Arial, sans-serif;
       text-align: center;
-      padding: 20px;
+      padding: 40px;
     }
-    #scanner {
-      width: 100%;
-      max-width: 400px;
-      margin: 20px auto;
-      border: 2px solid #555;
-      border-radius: 10px;
+    button {
+      font-size: 18px;
+      padding: 15px 30px;
+      cursor: pointer;
+      border-radius: 8px;
+      border: none;
+      background-color: #4caf50;
+      color: white;
+      transition: background-color 0.3s ease;
     }
-    #result {
-      margin-top: 20px;
-      font-weight: bold;
-      color: green;
+    button:hover {
+      background-color: #45a049;
     }
   </style>
 </head>
 <body>
-
   <h2>Attendance QR Scanner</h2>
-  <div id="scanner"></div>
-  <div id="result">Waiting for scan...</div>
-
-  <script src="https://unpkg.com/html5-qrcode@2.3.7/minified/html5-qrcode.min.js"></script>
-  <script>
-    const result = document.getElementById('result');
-    const html5QrCode = new Html5Qrcode("scanner");
-
-    function onScanSuccess(decodedText, decodedResult) {
-      html5QrCode.stop();
-      result.innerText = "Scanned: " + decodedText;
-    }
-
-    Html5Qrcode.getCameras().then(cameras => {
-      if (cameras && cameras.length) {
-        html5QrCode.start(
-          cameras[0].id,
-          {
-            fps: 10,
-            qrbox: 250
-          },
-          onScanSuccess
-        );
-      } else {
-        result.innerText = "No cameras found";
-      }
-    }).catch(err => {
-      result.innerText = "Camera error: " + err;
-    });
-  </script>
-
+  <p>Click the button below to open the QR code scanner in a new tab:</p>
+  <button onclick="window.open('https://webqr.com', '_blank')">Open QR Scanner</button>
 </body>
 </html>
