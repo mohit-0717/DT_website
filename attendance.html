@@ -7,9 +7,9 @@
   <style>
     #scanner {
       width: 100%;
-      max-width: 500px;
+      max-width: 400px;
       margin: 20px auto;
-      border: 2px solid #333;
+      border: 2px solid #444;
       border-radius: 8px;
     }
     #result {
@@ -19,47 +19,50 @@
       text-align: center;
       font-weight: bold;
     }
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
   </style>
 </head>
 <body>
 
-  <h2 style="text-align:center;">Attendance QR Scanner</h2>
-
+  <h2>Attendance QR Scanner</h2>
   <div id="scanner"></div>
   <div id="result">Waiting for scan...</div>
 
+  <!-- QR code scanner script -->
   <script src="https://unpkg.com/html5-qrcode@2.3.7/minified/html5-qrcode.min.js"></script>
   <script>
-    const scannerElementId = "scanner";
     const resultDiv = document.getElementById("result");
+    const html5QrCode = new Html5Qrcode("scanner");
 
     function onScanSuccess(decodedText, decodedResult) {
-      resultDiv.innerText = `Scanned ID: ${decodedText}`;
+      // Stop scanner after one scan
       html5QrCode.stop().then(() => {
-        console.log("Scanner stopped.");
-      }).catch((err) => console.error(err));
+        console.log("QR Code scanner stopped.");
+      });
+      resultDiv.innerText = `Scanned ID: ${decodedText}`;
     }
 
     function onScanFailure(error) {
-      // ignore for now
+      // Optional: Ignore scan failures
     }
 
-    const html5QrCode = new Html5Qrcode(scannerElementId);
-
     Html5Qrcode.getCameras().then(cameras => {
-      if (cameras && cameras.length > 0) {
-        const cameraId = cameras[0].id;
+      if (cameras && cameras.length) {
         html5QrCode.start(
-          cameraId,
+          cameras[0].id, // use first available camera
           { fps: 10, qrbox: 250 },
           onScanSuccess,
           onScanFailure
         );
       } else {
-        resultDiv.innerText = "No camera found.";
+        resultDiv.innerText = "No cameras found.";
       }
     }).catch(err => {
-      resultDiv.innerText = "Camera error: " + err;
+      resultDiv.innerText = "Error accessing camera: " + err;
     });
   </script>
 </body>
