@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Attendance QR Scanner</title>
+  <title>Attendance Validator</title>
   <style>
-    body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
-    #reader { width: 320px; margin: 20px auto; }
-    #result { margin-top: 20px; font-size: 18px; font-weight: bold; color: green; }
-    #login-section { margin-bottom: 20px; }
-    #scanner-section { display: none; }
+    body { font-family: Arial, sans-serif; max-width: 600px; margin: 20px auto; text-align: center; }
+    #scanner-section, #result-section { display: none; margin-top: 20px; }
+    textarea { width: 100%; height: 100px; }
+    #result { font-weight: bold; margin-top: 20px; color: green; }
+    #loginMsg { color: red; }
   </style>
 </head>
 <body>
@@ -19,66 +19,50 @@
     <input id="loginId" type="text" placeholder="ID: Organizer" /><br><br>
     <input id="loginPass" type="password" placeholder="Password" /><br><br>
     <button onclick="checkLogin()">Login</button>
-    <div id="loginMsg" style="color:red; margin-top:10px;"></div>
+    <div id="loginMsg"></div>
   </div>
 
   <div id="scanner-section">
-    <h3>Scan Participant QR</h3>
-    <div id="reader"></div>
-    <div id="result">Waiting for scan...</div>
+    <h3>Paste Scanned QR JSON Here</h3>
+    <textarea id="qrInput" placeholder='Paste scanned QR JSON text here'></textarea><br>
+    <button onclick="validateQR()">Validate QR</button>
   </div>
 
-  <script src="https://unpkg.com/html5-qrcode@2.3.7/minified/html5-qrcode.min.js"></script>
-  <script>
-    function checkLogin() {
-      const id = document.getElementById("loginId").value.trim();
-      const pass = document.getElementById("loginPass").value.trim();
-      const loginMsg = document.getElementById("loginMsg");
+  <div id="result-section">
+    <h3>Validation Result</h3>
+    <div id="result"></div>
+  </div>
 
-      if(id === "Organizer" && pass === "123456") {
-        loginMsg.innerText = "";
-        document.getElementById("login-section").style.display = "none";
-        document.getElementById("scanner-section").style.display = "block";
-        startScanner();
-      } else {
-        loginMsg.innerText = "Invalid ID or Password!";
-      }
+<script>
+  function checkLogin() {
+    const id = document.getElementById("loginId").value.trim();
+    const pass = document.getElementById("loginPass").value.trim();
+    const loginMsg = document.getElementById("loginMsg");
+
+    if(id === "Organizer" && pass === "123456") {
+      loginMsg.innerText = "";
+      document.getElementById("login-section").style.display = "none";
+      document.getElementById("scanner-section").style.display = "block";
+    } else {
+      loginMsg.innerText = "Invalid ID or Password!";
+    }
+  }
+
+  function validateQR() {
+    const qrText = document.getElementById("qrInput").value.trim();
+    const resultDiv = document.getElementById("result");
+    const resultSection = document.getElementById("result-section");
+
+    try {
+      const data = JSON.parse(qrText);
+      resultDiv.innerText = `QR is valid for the event — "${data.event}" of the participant — "${data.name}"`;
+    } catch(e) {
+      resultDiv.innerText = "Invalid QR JSON data!";
     }
 
-    function startScanner() {
-      const html5QrCode = new Html5Qrcode("reader");
-      const resultDiv = document.getElementById("result");
-
-      Html5Qrcode.getCameras().then(cameras => {
-        if (cameras && cameras.length) {
-          html5QrCode.start(
-            cameras[0].id,
-            { fps: 10, qrbox: 250 },
-            (decodedText) => {
-              try {
-                const data = JSON.parse(decodedText);
-                // Show your required message here:
-                resultDiv.innerText = `QR is valid for the event — "${data.event}" of the participant — "${data.name}"`;
-                // Stop scanning after successful scan
-                html5QrCode.stop();
-              } catch(e) {
-                resultDiv.innerText = "Invalid QR data format.";
-              }
-            },
-            (errorMessage) => {
-              // Optionally handle scan errors here
-            }
-          ).catch(err => {
-            resultDiv.innerText = "Unable to start scanning: " + err;
-          });
-        } else {
-          resultDiv.innerText = "No cameras found.";
-        }
-      }).catch(err => {
-        resultDiv.innerText = "Error getting cameras: " + err;
-      });
-    }
-  </script>
+    resultSection.style.display = "block";
+  }
+</script>
 
 </body>
 </html>
