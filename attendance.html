@@ -57,32 +57,48 @@
     <p id="statusMsg"></p>
   </div>
 
-  <script>
-    // Show login on page load
-    document.getElementById('loginBox').style.display = 'block';
+<script>
+  const resultElement = document.getElementById('result');
+  const html5QrCode = new Html5Qrcode("reader");
 
-    function checkLogin() {
-      const id = document.getElementById('userId').value.trim();
-      const pass = document.getElementById('userPass').value.trim();
-
-      if (id === "Organizer" && pass === "123456") {
-        document.getElementById('loginBox').style.display = 'none';
-        document.getElementById('scannerBox').style.display = 'block';
+  function onScanSuccess(decodedText, decodedResult) {
+    try {
+      const data = JSON.parse(decodedText);
+      if (data.name && data.event) {
+        resultElement.innerHTML = `
+          ✅ Valid QR<br>
+          👤 Name: ${data.name}<br>
+          🏫 College: ${data.college}<br>
+          📅 Event: ${data.event}
+        `;
       } else {
-        document.getElementById('loginStatus').innerText = "❌ Invalid ID or password.";
+        resultElement.innerText = "❌ Invalid QR format";
       }
+    } catch (err) {
+      resultElement.innerText = "❌ Error reading QR data";
     }
 
-    function submitQR() {
-      const code = document.getElementById('qrInput').value.trim();
-      if (code === "") {
-        document.getElementById('statusMsg').innerText = "❌ Please paste a QR code.";
-      } else {
-        document.getElementById('statusMsg').innerText = "✅ Attendance marked for: " + code;
-        // Add backend logic here if needed
-      }
+    html5QrCode.stop().catch(err => {
+      console.error("Failed to stop camera: ", err);
+    });
+  }
+
+  Html5Qrcode.getCameras().then(cameras => {
+    if (cameras.length > 0) {
+      html5QrCode.start(
+        cameras[0].id,
+        { fps: 10, qrbox: 250 },
+        onScanSuccess
+      ).catch(err => {
+        resultElement.innerText = "❌ Camera start failed: " + err;
+      });
+    } else {
+      resultElement.innerText = "❌ No cameras found";
     }
-  </script>
+  }).catch(err => {
+    resultElement.innerText = "⚠️ Camera access error: " + err;
+  });
+</script>
 
 </body>
 </html>
