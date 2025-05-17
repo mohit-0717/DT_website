@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Attendance - QR Scanner</title>
+  <style>
+    #scanner {
+      width: 100%;
+      max-width: 500px;
+      margin: 20px auto;
+      border: 2px solid #333;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    #result {
+      margin-top: 20px;
+      font-size: 1.2rem;
+      color: green;
+      text-align: center;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <h2 style="text-align:center;">Attendance QR Scanner</h2>
+
+  <div id="scanner"></div>
+  <div id="result">Scan a QR code to mark attendance</div>
+
+  <!-- Include a popular QR code scanning library -->
+  <script src="https://unpkg.com/html5-qrcode@2.3.7/minified/html5-qrcode.min.js"></script>
+  
+  <script>
+    const resultElement = document.getElementById('result');
+    const scannerElementId = "scanner";
+
+    function onScanSuccess(decodedText, decodedResult) {
+      // Handle the scanned code here
+      console.log(`Code scanned: ${decodedText}`);
+
+      // Show scanned result to user
+      resultElement.innerText = `Attendance marked for ID: ${decodedText}`;
+
+      // Optionally, stop scanning after successful scan
+      html5QrcodeScanner.clear().catch(error => {
+        console.error('Failed to clear scanner:', error);
+      });
+
+      // Here you can send the scanned ID to your server to mark attendance
+      // Example using fetch:
+      /*
+      fetch('/mark-attendance', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ studentId: decodedText })
+      })
+      .then(response => response.json())
+      .then(data => {
+        // Update UI or notify success/failure
+        console.log(data);
+      })
+      .catch(err => console.error('Error marking attendance:', err));
+      */
+    }
+
+    function onScanFailure(error) {
+      // Ignoring scan failures to avoid console clutter
+    }
+
+    let html5QrcodeScanner = new Html5Qrcode(scannerElementId);
+
+    // Start the scanner
+    Html5Qrcode.getCameras().then(cameras => {
+      if (cameras && cameras.length) {
+        let cameraId = cameras[0].id;
+        html5QrcodeScanner.start(
+          cameraId, 
+          { fps: 10, qrbox: 250 },
+          onScanSuccess,
+          onScanFailure
+        );
+      } else {
+        resultElement.innerText = "No camera found on this device.";
+      }
+    }).catch(err => {
+      console.error(err);
+      resultElement.innerText = "Error initializing camera.";
+    });
+  </script>
+</body>
+</html>
