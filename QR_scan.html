@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>QR Scanner</title>
+  <script src="https://unpkg.com/html5-qrcode@2.3.7/minified/html5-qrcode.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; padding: 30px; }
+    #reader { width: 320px; margin: 0 auto; border: 2px solid #333; border-radius: 10px; }
+    #message { margin-top: 20px; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h2>Scan Your QR Code</h2>
+  <div id="reader"></div>
+  <div id="message">Waiting for scan...</div>
+
+  <script>
+    const message = document.getElementById('message');
+    const html5QrCode = new Html5Qrcode("reader");
+
+    function onScanSuccess(decodedText, decodedResult) {
+      try {
+        localStorage.setItem('scannedQR', decodedText);
+        message.innerText = "✅ QR Scanned! Redirecting...";
+        html5QrCode.stop().then(() => {
+          window.location.href = "attendance.html"; // Make sure this path matches
+        });
+      } catch (e) {
+        message.innerText = "❌ Error processing QR code";
+      }
+    }
+
+    Html5Qrcode.getCameras().then(cameras => {
+      if (cameras && cameras.length) {
+        html5QrCode.start(cameras[0].id, { fps: 10, qrbox: 250 }, onScanSuccess);
+      } else {
+        message.innerText = "❌ No camera found.";
+      }
+    }).catch(err => {
+      message.innerText = "Camera error: " + err;
+    });
+  </script>
+</body>
+</html>
