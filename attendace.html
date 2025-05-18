@@ -16,15 +16,38 @@
       background-color: #f0fff0;
       display: inline-block;
     }
+    .btn-scan {
+      padding: 12px 24px;
+      font-size: 16px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .btn-scan:hover {
+      background-color: #45a049;
+    }
   </style>
 </head>
 <body>
-  <h2>Check Your Attendance</h2>
 
-  <div id="studentAutoResult">
-    Waiting for QR scan...
+  <h2>📋 Attendance Status</h2>
+
+  <!-- Organizer QR Scan Button -->
+  <div style="text-align: center; margin-top: 20px;">
+    <button onclick="window.location.href='scanner.html'" class="btn-scan">
+      🔐 Organizer QR Scan
+    </button>
   </div>
 
+  <!-- Student Auto Attendance Display -->
+  <div style="margin-top: 40px;">
+    <h3>🎉 Auto Attendance Check</h3>
+    <div id="studentAutoResult">Waiting for QR scan...</div>
+  </div>
+
+  <!-- JS to auto-check QR info from localStorage -->
   <script>
     window.addEventListener('DOMContentLoaded', function () {
       const scanned = localStorage.getItem("scannedQR");
