@@ -1,21 +1,73 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>QR Scanner</title>
+  <meta charset="UTF-8" />
+  <title>Attendance QR Scanner</title>
   <script src="https://unpkg.com/html5-qrcode@2.3.7/minified/html5-qrcode.min.js"></script>
   <style>
-    body { font-family: Arial, sans-serif; text-align: center; padding: 30px; }
-    #reader { width: 320px; margin: 0 auto; border: 2px solid #333; border-radius: 10px; }
-    #message { margin-top: 20px; font-weight: bold; }
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 40px;
+    }
+    input {
+      font-size: 16px;
+      padding: 10px;
+      margin: 10px;
+      width: 250px;
+    }
+    button {
+      font-size: 16px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      background-color: #4caf50;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #388e3c;
+    }
+    #statusMsg {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    #reader {
+      width: 320px;
+      margin: 0 auto;
+      border: 2px solid #333;
+      border-radius: 10px;
+    }
+    #message {
+      margin-top: 20px;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
-  <h2>Scan Your QR Code</h2>
+
+  <h2>Attendance QR Scanner</h2>
+  <button onclick="window.open('https://scanapp.org/webscanner', '_blank')">Open QR Scanner</button>
+
+  <h3>Paste Scanned QR Code Below:</h3>
+  <input type="text" id="qrInput" placeholder="Paste scanned QR code here"><br>
+  <button onclick="submitQR()">Submit Attendance</button>
+  <p id="statusMsg"></p>
+
+  <h3>Scan Your QR Code</h3>
   <div id="reader"></div>
   <div id="message">Waiting for scan...</div>
 
   <script>
+    function submitQR() {
+      const code = document.getElementById('qrInput').value.trim();
+      if (code === "") {
+        document.getElementById('statusMsg').innerText = "❌ Please paste a QR code.";
+      } else {
+        document.getElementById('statusMsg').innerText = "✅ Attendance marked for: " + code;
+      }
+    }
+
     const message = document.getElementById('message');
     const html5QrCode = new Html5Qrcode("reader");
 
@@ -31,15 +83,23 @@
       }
     }
 
-    Html5Qrcode.getCameras().then(cameras => {
-      if (cameras && cameras.length) {
-        html5QrCode.start(cameras[0].id, { fps: 10, qrbox: 250 }, onScanSuccess);
-      } else {
-        message.innerText = "❌ No camera found.";
-      }
-    }).catch(err => {
-      message.innerText = "Camera error: " + err;
-    });
+    function startCameraScanner() {
+      Html5Qrcode.getCameras().then(cameras => {
+        if (cameras && cameras.length) {
+          html5QrCode.start(cameras[0].id, { fps: 10, qrbox: 250 }, onScanSuccess);
+        } else {
+          message.innerText = "❌ No camera found.";
+        }
+      }).catch(err => {
+        message.innerText = "Camera error: " + err;
+      });
+    }
+
+    // Start the camera scanner immediately when page loads
+    window.onload = function () {
+      startCameraScanner();
+    };
   </script>
+
 </body>
 </html>
