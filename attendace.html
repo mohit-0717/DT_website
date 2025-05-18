@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Attendance Status</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; padding: 30px; }
+    #studentAutoResult {
+      margin-top: 40px;
+      padding: 20px;
+      border: 2px solid #4caf50;
+      border-radius: 10px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #333;
+      background-color: #f0fff0;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+  <h2>Check Your Attendance</h2>
+
+  <div id="studentAutoResult">
+    Waiting for QR scan...
+  </div>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', function () {
+      const scanned = localStorage.getItem("scannedQR");
+      const resultDiv = document.getElementById("studentAutoResult");
+
+      if (!scanned) {
+        resultDiv.innerText = "⚠️ No QR code found. Please scan your QR first.";
+        return;
+      }
+
+      try {
+        const data = JSON.parse(scanned);
+        const regId = data.id;
+
+        const attendanceData = JSON.parse(localStorage.getItem("attendanceData")) || [];
+        const entry = attendanceData.find(record => record.regId === regId);
+
+        if (entry) {
+          resultDiv.innerHTML = `
+            ✅ Attendance Found!<br><br>
+            👤 <strong>${entry.name}</strong><br>
+            🏫 ${entry.collegeName}<br>
+            📅 ${entry.eventName}<br>
+            ⏰ Check-In Time: ${entry.checkInTime}
+          `;
+        } else {
+          resultDiv.innerText = "❌ No attendance record found for your QR.";
+        }
+
+        // Clear it after use
+        localStorage.removeItem("scannedQR");
+
+      } catch (e) {
+        resultDiv.innerText = "❌ Invalid QR data!";
+      }
+    });
+  </script>
+</body>
+</html>
